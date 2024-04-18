@@ -58,13 +58,14 @@ Call once class has been instantiated, typically within setup().
 @param &serial reference to serial port object (Serial, Serial1, ... Serial3)
 @ingroup setup
 */
-void ModbusMaster::begin(uint8_t slave, Stream &serial)
+void ModbusMaster::begin(uint8_t slave, Stream &serial, uint16_t timeout)
 {
 //  txBuffer = (uint16_t*) calloc(ku8MaxBufferSize, sizeof(uint16_t));
   _u8MBSlave = slave;
   _serial = &serial;
   _u8TransmitBufferIndex = 0;
   u16TransmitBufferLength = 0;
+  _timeout = timeout;
   
 #if __MODBUSMASTER_DEBUG__
   pinMode(__MODBUSMASTER_DEBUG_PIN_A__, OUTPUT);
@@ -797,7 +798,7 @@ uint8_t ModbusMaster::ModbusMasterTransaction(uint8_t u8MBFunction)
           break;
       }
     }
-    if ((millis() - u32StartTime) > ku16MBResponseTimeout)
+    if ((millis() - u32StartTime) > _timeout)
     {
       u8MBStatus = ku8MBResponseTimedOut;
     }
